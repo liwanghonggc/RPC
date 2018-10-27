@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.lwh.serialization.common.FDateJsonDeserializer;
+import com.lwh.serialization.common.FDateJsonSerializer;
 import com.lwh.serialization.serializer.ISerializer;
 
 import java.io.IOException;
@@ -17,7 +19,7 @@ import java.util.Date;
  * @date 2018-10-27
  * @desp 使用Jackson来进行JSON序列化
  */
-public class JSONSerializer implements ISerializer {
+public class JackSonSerializer implements ISerializer {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -33,6 +35,8 @@ public class JSONSerializer implements ISerializer {
         objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
 
         SimpleModule module = new SimpleModule("DateTimeModule", Version.unknownVersion());
+        module.addSerializer(Date.class, new FDateJsonSerializer());
+        module.addDeserializer(Date.class, new FDateJsonDeserializer());
 
         objectMapper.registerModule(module);
     }

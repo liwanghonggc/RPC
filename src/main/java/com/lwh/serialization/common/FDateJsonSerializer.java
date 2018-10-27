@@ -1,9 +1,10 @@
 package com.lwh.serialization.common;
 
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.JsonProcessingException;
-import org.codehaus.jackson.map.JsonSerializer;
-import org.codehaus.jackson.map.SerializerProvider;
+
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -12,14 +13,14 @@ import java.util.Date;
 /**
  * @author lwh
  * @date 2018-10-27
- * @desp
+ * @desp 用来定制java.util.Date类进行序列化格式的定制化输出
  */
 public class FDateJsonSerializer extends JsonSerializer<Date> {
 
     @Override
-    public void serialize(Date date, JsonGenerator jsonGenerator,
-                          SerializerProvider serializerProvider) throws IOException, JsonProcessingException {
+    public void serialize(Date value, JsonGenerator gen,
+                          SerializerProvider serializers) throws IOException, JsonProcessingException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        jsonGenerator.writeString(date != null ? sdf.format(date) : "null");
+        gen.writeString(value != null ? sdf.format(value) : "null");
     }
 }
