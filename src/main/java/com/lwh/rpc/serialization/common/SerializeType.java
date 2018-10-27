@@ -1,4 +1,4 @@
-package com.lwh.serialization.common;
+package com.lwh.rpc.serialization.common;
 
 import org.apache.commons.lang3.StringUtils;
 

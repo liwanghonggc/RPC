@@ -1,4 +1,4 @@
-package com.lwh.serialization.serializer;
+package com.lwh.rpc.serialization.serializer;
 
 /**
  * @author lwh

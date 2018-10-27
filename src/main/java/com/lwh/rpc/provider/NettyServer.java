@@ -1,4 +1,4 @@
-package com.lwh.provider;
+package com.lwh.rpc.provider;
 
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;

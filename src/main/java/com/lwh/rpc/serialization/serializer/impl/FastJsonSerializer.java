@@ -1,8 +1,8 @@
-package com.lwh.serialization.serializer.impl;
+package com.lwh.rpc.serialization.serializer.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.lwh.serialization.serializer.ISerializer;
+import com.lwh.rpc.serialization.serializer.ISerializer;
 
 /**
  * @author lwh

@@ -1,6 +1,6 @@
-package com.lwh.serialization.serializer.impl;
+package com.lwh.rpc.serialization.serializer.impl;
 
-import com.lwh.serialization.serializer.ISerializer;
+import com.lwh.rpc.serialization.serializer.ISerializer;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 

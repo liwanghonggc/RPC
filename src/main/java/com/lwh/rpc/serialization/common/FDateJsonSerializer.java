@@ -1,4 +1,4 @@
-package com.lwh.serialization.common;
+package com.lwh.rpc.serialization.common;
 
 
 import com.fasterxml.jackson.core.JsonGenerator;

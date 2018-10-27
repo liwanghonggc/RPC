@@ -1,4 +1,4 @@
-package com.lwh.serialization.serializer.impl;
+package com.lwh.rpc.serialization.serializer.impl;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -7,9 +7,9 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.lwh.serialization.common.FDateJsonDeserializer;
-import com.lwh.serialization.common.FDateJsonSerializer;
-import com.lwh.serialization.serializer.ISerializer;
+import com.lwh.rpc.serialization.common.FDateJsonDeserializer;
+import com.lwh.rpc.serialization.common.FDateJsonSerializer;
+import com.lwh.rpc.serialization.serializer.ISerializer;
 
 import java.io.IOException;
 import java.util.Date;

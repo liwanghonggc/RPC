@@ -1,4 +1,4 @@
-package com.lwh.provider;
+package com.lwh.rpc.provider;
 
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
