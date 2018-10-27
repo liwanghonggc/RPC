@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * @author lwh
  * @date 2018-10-27
- * @desp 基于Netty的解码器,复制将字节数组解码为Java对象
+ * @desp 基于Netty的解码器,负责将字节数组解码为Java对象
  */
 public class NettyDecoderHandler extends ByteToMessageDecoder {
 
@@ -38,6 +38,8 @@ public class NettyDecoderHandler extends ByteToMessageDecoder {
         }
 
         in.markReaderIndex();
+
+        //读取字节数组(消息体)的长度
         int dataLength = in.readInt();
         if(dataLength < 0){
             ctx.close();
