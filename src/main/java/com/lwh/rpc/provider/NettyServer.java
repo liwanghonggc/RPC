@@ -1,7 +1,14 @@
 package com.lwh.rpc.provider;
 
-import io.netty.channel.Channel;
-import io.netty.channel.EventLoopGroup;
+import com.lwh.rpc.helper.PropertyConfigureHelper;
+import com.lwh.rpc.serialization.common.SerializeType;
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.*;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
 
 /**
  * @author lwh
@@ -23,4 +30,44 @@ public class NettyServer {
      * 服务端worker线程组
      */
     private EventLoopGroup workerGroup;
+
+    /**
+     * 序列化类型配置信息
+     */
+    private SerializeType serializeType = PropertyConfigureHelper.getSerializeType();
+
+    /**
+     * 启动Netty服务
+     */
+    public void start(final int port){
+        if(bossGroup != null || workerGroup != null){
+            return;
+        }
+
+        bossGroup = new NioEventLoopGroup();
+        workerGroup = new NioEventLoopGroup();
+
+        ServerBootstrap serverBootstrap = new ServerBootstrap();
+        serverBootstrap.group(bossGroup, workerGroup)
+                .channel(NioServerSocketChannel.class)
+                .option(ChannelOption.SO_BACKLOG, 1024)
+                .childOption(ChannelOption.SO_KEEPALIVE, true)
+                .childOption(ChannelOption.TCP_NODELAY, true)
+                .handler(new LoggingHandler(LogLevel.INFO))
+                .childHandler(new ChannelInitializer<SocketChannel>() {
+
+                    @Override
+                    protected void initChannel(SocketChannel socketChannel) throws Exception {
+                        ChannelPipeline pipeline = socketChannel.pipeline();
+
+                        //注册解码器
+                        pipeline.addLast(null);
+                        //注册编码器
+                        pipeline.addLast(null);
+                        //注册服务端业务逻辑处理器
+                        pipeline.addLast(null);
+
+                    }
+                });
+    }
 }
