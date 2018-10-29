@@ -6,6 +6,7 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.Maps;
 import com.lwh.rpc.model.ProviderService;
 import com.lwh.rpc.model.RpcRequest;
+import com.lwh.rpc.model.RpcResponse;
 import com.lwh.rpc.zookeeper.IRegisterCenter4Provider;
 import com.lwh.rpc.zookeeper.RegisterCenter;
 import io.netty.channel.ChannelHandler;
@@ -109,7 +110,7 @@ public class NettyServerInvokerHandler extends SimpleChannelInboundHandler<RpcRe
             }
 
             //根据服务调用结果封装调用返回对象
-
+            RpcResponse response = new RpcResponse();
         }
     }
 }
