@@ -1,12 +1,18 @@
 package com.lwh.rpc.zookeeper;
 
+import com.alibaba.fastjson.JSON;
+import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.lwh.rpc.helper.IPHelper;
 import com.lwh.rpc.helper.PropertyConfigureHelper;
 import com.lwh.rpc.model.InvokerService;
 import com.lwh.rpc.model.ProviderService;
+import org.I0Itec.zkclient.IZkChildListener;
 import org.I0Itec.zkclient.ZkClient;
 import org.I0Itec.zkclient.serialize.SerializableSerializer;
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.util.CollectionUtils;
 
@@ -115,19 +121,59 @@ public class RegisterCenter implements IRegisterCenter4Invoker, IRegisterCenter4
                 int weight = providerService.getWeight();
                 //服务工作线程
                 int workerThreads = providerService.getWorkerThreads();
-                String localIp = null;
+                String localIp = IPHelper.localIp();
+                String currentServiceIpNode = servicePath + "/" + localIp + "|" + serverPort + "|" + weight
+                                                + "|" + workerThreads + "|" + groupName;
+                exist = zkClient.exists(currentServiceIpNode);
+                if(!exist){
+                    //创建临时节点
+                    zkClient.createEphemeral(currentServiceIpNode);
+                }
+
+                //监听注册服务的变化,同时更新数据到本地缓存
+                zkClient.subscribeChildChanges(servicePath, new IZkChildListener() {
+                    @Override
+                    public void handleChildChange(String parentPath, List<String> currentChilds) throws Exception {
+                        if(currentChilds == null){
+                            currentChilds = Lists.newArrayList();
+                        }
+
+                        //存活的服务IP列表
+                        List<String> activeServiceIpList = Lists.newArrayList(Lists.transform(currentChilds, new Function<String, String>() {
+                            @Override
+                            public String apply(String input) {
+                                return StringUtils.split(input, "|")[0];
+                            }
+                        }));
+
+                        refreshActiveService(activeServiceIpList);
+                    }
+                });
             }
+        }
+    }
+
+    @Override
+    public Map<String, List<ProviderService>> getProviderServiceMap() {
+        return providerServiceMap;
+    }
+
+    /**
+     * 消费端初始化服务提供者信息本地缓存
+     * @param remoteAppKey
+     * @param groupName
+     */
+    @Override
+    public void initProviderMap(String remoteAppKey, String groupName) {
+        if(MapUtils.isEmpty(serviceMetaData4Consume)){
+            //TODO
+            serviceMetaData4Consume.putAll(null);
         }
     }
 
     @Override
     public Pair<List<ProviderService>, List<InvokerService>> queryProvidersAndInvokers(String serviceName, String appKey) {
         return null;
-    }
-
-    @Override
-    public void initProviderMap(String remoteAppKey, String groupName) {
-
     }
 
     @Override
@@ -140,8 +186,42 @@ public class RegisterCenter implements IRegisterCenter4Invoker, IRegisterCenter4
 
     }
 
-    @Override
-    public Map<String, List<ProviderService>> getProviderServiceMap() {
-        return null;
+    /**
+     * 利用ZK自动刷新当前存活的服务提供者列表数据
+     * @param serviceIpList
+     */
+    private void refreshActiveService(List<String> serviceIpList){
+        if(serviceIpList == null){
+            serviceIpList = Lists.newArrayList();
+        }
+
+        Map<String, List<ProviderService>> currentServiceMetaDataMap = Maps.newHashMap();
+        for(Map.Entry<String, List<ProviderService>> entry : providerServiceMap.entrySet()){
+            String key = entry.getKey();
+            List<ProviderService> providerServices = entry.getValue();
+
+            List<ProviderService> serviceMetaDataModelList = currentServiceMetaDataMap.get(key);
+            if(serviceMetaDataModelList == null){
+                serviceMetaDataModelList = Lists.newArrayList();
+            }
+
+            for(ProviderService serviceMetaData : providerServices){
+                if(serviceIpList.contains(serviceMetaData.getServerIp())){
+                    serviceMetaDataModelList.add(serviceMetaData);
+                }
+            }
+
+            currentServiceMetaDataMap.put(key, serviceMetaDataModelList);
+        }
+
+        providerServiceMap.clear();
+        System.out.println("currentServiceMetaDataMap: " + JSON.toJSONString(currentServiceMetaDataMap));
+        providerServiceMap.putAll(currentServiceMetaDataMap);
+    }
+
+    private Map<String, List<ProviderService>> fetchOrUpdateServiceMetaData(String remoteAppKey, String groupName){
+        final Map<String, List<ProviderService>> providerServiceMap = Maps.newConcurrentMap();
+        //TODO
+        return providerServiceMap;
     }
 }
