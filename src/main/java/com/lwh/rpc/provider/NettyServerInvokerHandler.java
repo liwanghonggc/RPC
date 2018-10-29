@@ -1,16 +1,25 @@
 package com.lwh.rpc.provider;
 
+import com.alibaba.fastjson.JSON;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.Maps;
 import com.lwh.rpc.model.ProviderService;
 import com.lwh.rpc.model.RpcRequest;
+import com.lwh.rpc.zookeeper.IRegisterCenter4Provider;
+import com.lwh.rpc.zookeeper.RegisterCenter;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author lwh
@@ -65,6 +74,42 @@ public class NettyServerInvokerHandler extends SimpleChannelInboundHandler<RpcRe
                     }
                 }
             }
+
+            //获取注册中心服务
+            IRegisterCenter4Provider registerCenter4Provider = RegisterCenter.singleton();
+            List<ProviderService> localProvidersCaches = registerCenter4Provider.getProviderServiceMap().get(serviceKey);
+
+            Object result = null;
+            boolean acquire = false;
+
+            try{
+                ProviderService localProviderCache = Collections2.filter(localProvidersCaches, new Predicate<ProviderService>() {
+                    @Override
+                    public boolean apply(ProviderService input) {
+                        return StringUtils.equals(input.getServiceMethod().getName(), methodName);
+                    }
+                }).iterator().next();
+
+                Object serviceObject = localProviderCache.getServiceObject();
+                //利用反射发起服务调用
+                Method method = localProviderCache.getServiceMethod();
+                //利用semaphore实现限流
+                acquire = semaphore.tryAcquire(consumeTimeout, TimeUnit.MICROSECONDS);
+                if(acquire){
+                    result = method.invoke(serviceObject, rpcRequest.getArgs());
+                    System.out.println("调用结果为: " + result);
+                }
+            }catch (Exception e){
+                System.out.println(JSON.toJSONString(localProvidersCaches) + "  " + methodName+" "+e.getMessage());
+                result = e;
+            }finally {
+                if (acquire){
+                    semaphore.release();
+                }
+            }
+
+            //根据服务调用结果封装调用返回对象
+
         }
     }
 }

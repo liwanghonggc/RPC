@@ -1,7 +1,10 @@
 package com.lwh.rpc.provider;
 
 import com.lwh.rpc.helper.PropertyConfigureHelper;
+import com.lwh.rpc.model.RpcRequest;
 import com.lwh.rpc.serialization.common.SerializeType;
+import com.lwh.rpc.serialization.handler.NettyDecoderHandler;
+import com.lwh.rpc.serialization.handler.NettyEncoderHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -61,13 +64,40 @@ public class NettyServer {
                         ChannelPipeline pipeline = socketChannel.pipeline();
 
                         //注册解码器
-                        pipeline.addLast(null);
+                        pipeline.addLast(new NettyDecoderHandler(RpcRequest.class, serializeType));
                         //注册编码器
-                        pipeline.addLast(null);
+                        pipeline.addLast(new NettyEncoderHandler(serializeType));
                         //注册服务端业务逻辑处理器
-                        pipeline.addLast(null);
+                        pipeline.addLast(new NettyServerInvokerHandler());
 
                     }
                 });
+
+        try {
+            channel = serverBootstrap.bind(port).sync().channel();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 停止Netty服务
+     */
+    public void stop(){
+        if(channel == null){
+            throw new RuntimeException("Netty Server Stopped!");
+        }
+
+        bossGroup.shutdownGracefully();
+        workerGroup.shutdownGracefully();
+        channel.closeFuture().syncUninterruptibly();
+    }
+
+    private NettyServer(){
+
+    }
+
+    public static NettyServer singleton(){
+        return nettyServer;
     }
 }
