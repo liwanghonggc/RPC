@@ -111,6 +111,15 @@ public class NettyServerInvokerHandler extends SimpleChannelInboundHandler<RpcRe
 
             //根据服务调用结果封装调用返回对象
             RpcResponse response = new RpcResponse();
+            response.setInvokeTimeout(consumeTimeout);
+            response.setUniqueKey(rpcRequest.getUniquekey());
+            response.setResult(result);
+
+            //将服务调用结果返回对象写回到消费端
+            ctx.writeAndFlush(response);
+        }else {
+            logger.error("channel closed!");
+            System.out.println("channel closed!");
         }
     }
 }

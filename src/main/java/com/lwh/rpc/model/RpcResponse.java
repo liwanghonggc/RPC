@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * @author lwh
  * @date 2018-10-29
- * @desp
+ * @desp 服务调用返回结果
  */
 public class RpcResponse implements Serializable {
 
