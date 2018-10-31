@@ -46,6 +46,10 @@ public class RpcResponseWrapper {
         return false;
     }
 
+    public static RpcResponseWrapper of(){
+        return new RpcResponseWrapper();
+    }
+
     public BlockingQueue<RpcResponse> getResponseQueue() {
         return responseQueue;
     }
