@@ -25,17 +25,17 @@ import java.util.Map;
 public class RevokerFactoryBean implements FactoryBean, InitializingBean {
 
     /**
-     * 服务接口
+     * 服务接口,用来匹配从服务注册中心获取到本地缓存的服务提供者,得到匹配服务接口的服务提供者列表,再根据软负载策略选取其中一个服务提供者,发起调用
      */
     private Class<?> targetInterface;
 
     /**
-     * 超时时间
+     * 超时时间,服务调用超时时间,超过所设置的时间之后,调用方不再等待服务方返回结果,直接返回给调用方
      */
     private int timeout;
 
     /**
-     * 服务bean
+     * 服务bean,远程服务生成的调用方本地代理对象,可以看做调用方stub
      */
     private Object serviceObject;
 
@@ -45,12 +45,12 @@ public class RevokerFactoryBean implements FactoryBean, InitializingBean {
     private String clusterStrategy;
 
     /**
-     * 服务提供者唯一标识
+     * 服务提供者唯一标识,与服务发布配置的appKey一致
      */
     private String remoteAppKey;
 
     /**
-     * 服务分组组名
+     * 服务分组组名,与服务发布配置的groupName一致,用于实现同一个服务分组功能
      */
     private String groupName = "group";
 

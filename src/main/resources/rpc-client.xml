@@ -10,7 +10,7 @@
     <AresClient:reference id="remoteHelloService"
                           interface="com.lwh.test.HelloService"
                           clusterStrategy="WeightRandom"
-                          remoteAppKey="ares"
+                          remoteAppKey="rpc"
                           groupName="default"
                           timeout="3000"/>
 
