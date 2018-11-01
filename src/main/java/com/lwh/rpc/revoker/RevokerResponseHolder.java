@@ -52,11 +52,15 @@ public class RevokerResponseHolder {
     }
 
     /**
-     * 将Netty调用异步结果放入阻塞队列
+     * 将Netty调用异步返回结果放入阻塞队列
      * @param response
      */
     public static void putResultValue(RpcResponse response){
-
+        long currentTime = System.currentTimeMillis();
+        RpcResponseWrapper rpcResponseWrapper = responseMap.get(response.getUniqueKey());
+        rpcResponseWrapper.setResponseTime(currentTime);
+        rpcResponseWrapper.getResponseQueue().add(response);
+        responseMap.put(response.getUniqueKey(), rpcResponseWrapper);
     }
 
     /**
@@ -66,6 +70,13 @@ public class RevokerResponseHolder {
      * @return
      */
     public static RpcResponse getValue(String requestUniqueKey, long timeout){
-        return null;
+        RpcResponseWrapper responseWrapper = responseMap.get(requestUniqueKey);
+        try {
+            return responseWrapper.getResponseQueue().poll(timeout, TimeUnit.MICROSECONDS);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } finally {
+            responseMap.remove(requestUniqueKey);
+        }
     }
 }
