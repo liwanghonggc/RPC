@@ -1,11 +1,13 @@
 package com.lwh.rpc.model;
 
+import java.io.Serializable;
+
 /**
  * @author lwh
  * @date 2018-10-27
  * @desp RPC请求类
  */
-public class RpcRequest {
+public class RpcRequest implements Serializable {
 
     /**
      * UUID,唯一标识一次返回值

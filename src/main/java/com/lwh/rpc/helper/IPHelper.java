@@ -55,4 +55,8 @@ public class IPHelper {
     public static String localIp(){
         return hostIp;
     }
+
+    public static void main(String[] args) throws Exception {
+        System.out.println(localIp());
+    }
 }

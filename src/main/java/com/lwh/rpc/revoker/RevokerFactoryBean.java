@@ -52,7 +52,7 @@ public class RevokerFactoryBean implements FactoryBean, InitializingBean {
     /**
      * 服务分组组名,与服务发布配置的groupName一致,用于实现同一个服务分组功能
      */
-    private String groupName = "group";
+    private String groupName = "default";
 
     @Override
     public Object getObject() throws Exception {

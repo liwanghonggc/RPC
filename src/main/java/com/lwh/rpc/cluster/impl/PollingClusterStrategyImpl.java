@@ -39,6 +39,11 @@ public class PollingClusterStrategyImpl implements ClusterStrategy {
             lock.unlock();
         }
 
+        //兜底,保证程序健壮性,若未取到服务,则直接取第一个
+        if (service == null) {
+            service = providerServices.get(0);
+        }
+
         return service;
     }
 }

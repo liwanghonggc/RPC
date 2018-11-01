@@ -57,7 +57,7 @@ public class RegisterCenter implements IRegisterCenter4Invoker, IRegisterCenter4
     /**
      * 组装zk根路径/appkey路径
      */
-    private static String ROOT_PATH = "/config_register";
+    private static String ROOT_PATH = "/rpc_config_register";
     public static String PROVIDER_TYPE = "provider";
     public static String INVOKER_TYPE = "consumer";
     private static volatile ZkClient zkClient = null;
@@ -71,7 +71,7 @@ public class RegisterCenter implements IRegisterCenter4Invoker, IRegisterCenter4
     }
 
     @Override
-    public void registerProvider(List<ProviderService> serviceMetaData) {
+    public void registerProvider(final List<ProviderService> serviceMetaData) {
         if (CollectionUtils.isEmpty(serviceMetaData)) {
             return;
         }
@@ -381,7 +381,7 @@ public class RegisterCenter implements IRegisterCenter4Invoker, IRegisterCenter4
                     if (StringUtils.equals(serviceType, PROVIDER_TYPE)) {
                         //获取ROOT_PATH + APP_KEY + group + service + serviceType 注册中心子目录列表
                         String providerPath = servicePath + "/" + serviceType;
-                        List<String> providers = zkClient.getChildren(parentPath);
+                        List<String> providers = zkClient.getChildren(providerPath);
                         if (CollectionUtils.isEmpty(providers)) {
                             continue;
                         }

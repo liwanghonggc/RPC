@@ -26,18 +26,21 @@ public class RevokerResponseHolder {
 
     static {
         //删除超时未获取到结果的key,防止内存泄露
-        removeExpireKeyExecutor.execute(() -> {
-            while (true){
-                try {
-                    for(Map.Entry<String, RpcResponseWrapper> entry : responseMap.entrySet()){
-                        boolean isExpire = entry.getValue().isExpire();
-                        if(isExpire){
-                            responseMap.remove(entry.getKey());
+        removeExpireKeyExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                while (true){
+                    try {
+                        for(Map.Entry<String, RpcResponseWrapper> entry : responseMap.entrySet()){
+                            boolean isExpire = entry.getValue().isExpire();
+                            if(isExpire){
+                                responseMap.remove(entry.getKey());
+                            }
+                            Thread.sleep(10);
                         }
-                        Thread.sleep(10);
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
             }
         });
@@ -72,7 +75,7 @@ public class RevokerResponseHolder {
     public static RpcResponse getValue(String requestUniqueKey, long timeout){
         RpcResponseWrapper responseWrapper = responseMap.get(requestUniqueKey);
         try {
-            return responseWrapper.getResponseQueue().poll(timeout, TimeUnit.MICROSECONDS);
+            return responseWrapper.getResponseQueue().poll(timeout, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         } finally {

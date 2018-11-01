@@ -126,7 +126,7 @@ public class RevokerProxyBeanFactory implements InvocationHandler {
                 return response.getResult();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         return null;
     }

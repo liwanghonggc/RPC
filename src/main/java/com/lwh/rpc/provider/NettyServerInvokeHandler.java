@@ -30,9 +30,9 @@ import java.util.concurrent.TimeUnit;
  */
 
 @ChannelHandler.Sharable
-public class NettyServerInvokerHandler extends SimpleChannelInboundHandler<RpcRequest> {
+public class NettyServerInvokeHandler extends SimpleChannelInboundHandler<RpcRequest> {
 
-    private static final Logger logger = LoggerFactory.getLogger(NettyServerInvokerHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(NettyServerInvokeHandler.class);
 
     /**
      * 服务端限流
@@ -95,7 +95,7 @@ public class NettyServerInvokerHandler extends SimpleChannelInboundHandler<RpcRe
                 //利用反射发起服务调用
                 Method method = localProviderCache.getServiceMethod();
                 //利用semaphore实现限流
-                acquire = semaphore.tryAcquire(consumeTimeout, TimeUnit.MICROSECONDS);
+                acquire = semaphore.tryAcquire(consumeTimeout, TimeUnit.MILLISECONDS);
                 if(acquire){
                     result = method.invoke(serviceObject, rpcRequest.getArgs());
                     System.out.println("调用结果为: " + result);

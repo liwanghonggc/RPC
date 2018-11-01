@@ -8,12 +8,12 @@ import io.netty.channel.SimpleChannelInboundHandler;
  * @author lwh
  * @date 2018-10-31
  * @desp 我们在Channel的连接池工厂类的具体实现NettyChannelPoolFactory中实现客户端具体业务逻辑处理器
- *       NettyClientInvokerHandler,在NettyClientInvokerHandler中获取Netty异步调用返回的结果,并
+ *       NettyClientInvokeHandler,在NettyClientInvokerHandler中获取Netty异步调用返回的结果,并
  *       将该结果保存到RevokerResponseHandler
  */
-public class NettyClientInvokerHandler extends SimpleChannelInboundHandler<RpcResponse> {
+public class NettyClientInvokeHandler extends SimpleChannelInboundHandler<RpcResponse> {
 
-    public NettyClientInvokerHandler(){
+    public NettyClientInvokeHandler(){
 
     }
 

@@ -197,7 +197,7 @@ public class NettyChannelPoolFactory {
                             //注册Netty解码器
                             pipeline.addLast(new NettyDecoderHandler(RpcResponse.class, serializeType));
                             //注册客户端业务逻辑处理handler
-                            pipeline.addLast(new NettyClientInvokerHandler());
+                            pipeline.addLast(new NettyClientInvokeHandler());
                         }
                     });
 

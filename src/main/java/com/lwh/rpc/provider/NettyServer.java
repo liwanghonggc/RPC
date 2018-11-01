@@ -43,40 +43,42 @@ public class NettyServer {
      * 启动Netty服务
      */
     public void start(final int port){
-        if(bossGroup != null || workerGroup != null){
-            return;
-        }
+        synchronized (NettyServer.class){
+            if(bossGroup != null || workerGroup != null){
+                return;
+            }
 
-        bossGroup = new NioEventLoopGroup();
-        workerGroup = new NioEventLoopGroup();
+            bossGroup = new NioEventLoopGroup();
+            workerGroup = new NioEventLoopGroup();
 
-        ServerBootstrap serverBootstrap = new ServerBootstrap();
-        serverBootstrap.group(bossGroup, workerGroup)
-                .channel(NioServerSocketChannel.class)
-                .option(ChannelOption.SO_BACKLOG, 1024)
-                .childOption(ChannelOption.SO_KEEPALIVE, true)
-                .childOption(ChannelOption.TCP_NODELAY, true)
-                .handler(new LoggingHandler(LogLevel.INFO))
-                .childHandler(new ChannelInitializer<SocketChannel>() {
+            ServerBootstrap serverBootstrap = new ServerBootstrap();
+            serverBootstrap.group(bossGroup, workerGroup)
+                    .channel(NioServerSocketChannel.class)
+                    .option(ChannelOption.SO_BACKLOG, 1024)
+                    .childOption(ChannelOption.SO_KEEPALIVE, true)
+                    .childOption(ChannelOption.TCP_NODELAY, true)
+                    .handler(new LoggingHandler(LogLevel.INFO))
+                    .childHandler(new ChannelInitializer<SocketChannel>() {
 
-                    @Override
-                    protected void initChannel(SocketChannel socketChannel) throws Exception {
-                        ChannelPipeline pipeline = socketChannel.pipeline();
+                        @Override
+                        protected void initChannel(SocketChannel socketChannel) throws Exception {
+                            ChannelPipeline pipeline = socketChannel.pipeline();
 
-                        //注册解码器
-                        pipeline.addLast(new NettyDecoderHandler(RpcRequest.class, serializeType));
-                        //注册编码器
-                        pipeline.addLast(new NettyEncoderHandler(serializeType));
-                        //注册服务端业务逻辑处理器
-                        pipeline.addLast(new NettyServerInvokerHandler());
+                            //注册解码器
+                            pipeline.addLast(new NettyDecoderHandler(RpcRequest.class, serializeType));
+                            //注册编码器
+                            pipeline.addLast(new NettyEncoderHandler(serializeType));
+                            //注册服务端业务逻辑处理器
+                            pipeline.addLast(new NettyServerInvokeHandler());
 
-                    }
-                });
+                        }
+                    });
 
-        try {
-            channel = serverBootstrap.bind(port).sync().channel();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            try {
+                channel = serverBootstrap.bind(port).sync().channel();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
