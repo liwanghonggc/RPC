@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:AresServer="http://www.rpc-remoting.com/schema/rpc-service"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.rpc-remoting.com/schema/rpc-service http://www.rpc-remoting.com/schema/rpc-service.xsd">
+
+    <!-- 发布远程服务 -->
+    <bean id="helloService" class="com.lwh.test.HelloServiceImpl"/>
+    <AresServer:service id="helloServiceRegister"
+                        interface="com.lwh.test.HelloService"
+                        ref="helloService"
+                        groupName="default"
+                        weight="2"
+                        appKey="rpc"
+                        workerThreads="100"
+                        serverPort="8081"
+                        timeout="600"/>
+
+
+</beans>

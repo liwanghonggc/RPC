@@ -23,6 +23,8 @@ import java.util.concurrent.TimeUnit;
  * @author lwh
  * @date 2018-11-01
  * @desp 分布式服务框架中客户端在发起服务调用的时候,如何使用软负载算法,选择一个服务提供方发起调用
+ *
+ *       它是远程服务在服务调用方的动态代理类实现,将复杂的远程调用通信逻辑封装在方法invoke中
  */
 public class RevokerProxyBeanFactory implements InvocationHandler {
 

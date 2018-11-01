@@ -1,27 +1,35 @@
 package com.lwh.rpc.provider;
 
+import com.google.common.collect.Lists;
+import com.lwh.rpc.helper.IPHelper;
+import com.lwh.rpc.model.ProviderService;
+import com.lwh.rpc.zookeeper.IRegisterCenter4Provider;
+import com.lwh.rpc.zookeeper.RegisterCenter;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
+
+import java.lang.reflect.Method;
+import java.util.List;
 
 /**
  * @author lwh
  * @date 2018-10-27
- * @desp
+ * @desp 实现远程服务的发布
  */
 public class ProviderFactoryBean implements FactoryBean, InitializingBean {
 
     /**
-     * 服务接口
+     * 服务接口,用于注册在服务注册中心,服务调用端获取后缓存在本地,用于发起服务调用
      */
     private Class<?> serviceItf;
 
     /**
-     * 服务实现
+     * 服务实现,用于服务调用
      */
     private Object serviceObject;
 
     /**
-     * 服务端口
+     * 服务端口,对外发布服务作为Netty服务端口
      */
     private String serverPort;
 
@@ -36,7 +44,7 @@ public class ProviderFactoryBean implements FactoryBean, InitializingBean {
     private Object serviceProxyObject;
 
     /**
-     * 服务提供者唯一标识
+     * 服务提供者唯一标识,唯一标识服务所在应用,作为zookeeper服务注册路径中的子路径,用于该应用所有服务的一个命名空间
      */
     private String appKey;
 
@@ -70,9 +78,46 @@ public class ProviderFactoryBean implements FactoryBean, InitializingBean {
         return true;
     }
 
+    /**
+     * 该方法会在SpringBean初始化的时候自动执行一次,主要做了
+     * 1.启动Netty服务端,将服务对外发布出去
+     * 2.将服务信息写入zookeeper,保存在服务注册中心
+     * @throws Exception
+     */
     @Override
     public void afterPropertiesSet() throws Exception {
+        //启动Netty服务端
+        NettyServer.singleton().start(Integer.parseInt(serverPort));
 
+        //注册zk,元数据到注册中心
+        List<ProviderService> providerServiceList = buildProviderServiceInfos();
+        IRegisterCenter4Provider registerCenter4Provider = RegisterCenter.singleton();
+        registerCenter4Provider.registerProvider(providerServiceList);
+    }
+
+    /**
+     * 将服务按照方法的粒度拆分,获得服务方法粒度服务列表List<ProviderService>,然后调用注册中心的方法
+     * 完成服务端信息的注册
+     * @return
+     */
+    private List<ProviderService> buildProviderServiceInfos(){
+        List<ProviderService> providerList = Lists.newArrayList();
+        Method[] methods = serviceObject.getClass().getDeclaredMethods();
+        for(Method method : methods){
+            ProviderService providerService = new ProviderService();
+            providerService.setServiceItf(serviceItf);
+            providerService.setServiceObject(serviceObject);
+            providerService.setServerIp(IPHelper.localIp());
+            providerService.setServerPort(Integer.parseInt(serverPort));
+            providerService.setTimeout(timeout);
+            providerService.setServiceMethod(method);
+            providerService.setWeight(weight);
+            providerService.setWorkerThreads(workerThreads);
+            providerService.setAppKey(appKey);
+            providerService.setGroupName(groupName);
+            providerList.add(providerService);
+        }
+        return providerList;
     }
 
     public Class<?> getServiceItf() {
