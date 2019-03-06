@@ -35,7 +35,7 @@ public class NettyServerInvokeHandler extends SimpleChannelInboundHandler<RpcReq
     private static final Logger logger = LoggerFactory.getLogger(NettyServerInvokeHandler.class);
 
     /**
-     * 服务端限流
+     * 服务端限流,String是serviceKey,代表提供服务的class,每个class同时提供的服务数量是有限的
      */
     private static final Map<String, Semaphore> serviceKeySemaphoreMap = Maps.newConcurrentMap();
 

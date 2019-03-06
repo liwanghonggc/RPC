@@ -70,6 +70,10 @@ public class RegisterCenter implements IRegisterCenter4Invoker, IRegisterCenter4
         return registerCenter;
     }
 
+    /**
+     * 服务端将服务提供者信息注册到zk对应节点下
+     * @param serviceMetaData
+     */
     @Override
     public void registerProvider(final List<ProviderService> serviceMetaData) {
         if (CollectionUtils.isEmpty(serviceMetaData)) {
