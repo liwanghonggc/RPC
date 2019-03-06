@@ -13,7 +13,7 @@ import java.util.Map;
 public interface IRegisterCenter4Provider {
 
     /**
-     * 服务端将服务提供者信息注册到zk对应节点下
+     * 服务端将服务提供者信息注册到zk对应节点下,注册完以后会使用ZK的监听机制,若服务列表有变化会同步到本地缓存
      * @param serviceMetaData
      */
     void registerProvider(final List<ProviderService> serviceMetaData);

@@ -71,7 +71,8 @@ public class RegisterCenter implements IRegisterCenter4Invoker, IRegisterCenter4
     }
 
     /**
-     * 服务端将服务提供者信息注册到zk对应节点下
+     * 服务端将服务提供者信息注册到zk对应节点下,服务端启动后会调用此方法,注册信息
+     * 注册完以后会使用ZK的监听机制,若服务列表有变化会同步到本地缓存
      * @param serviceMetaData
      */
     @Override
@@ -98,7 +99,7 @@ public class RegisterCenter implements IRegisterCenter4Invoker, IRegisterCenter4
                 zkClient = new ZkClient(ZK_SERVICE, ZK_SESSION_TIME_OUT, ZK_CONNECTION_TIME_OUT, new SerializableSerializer());
             }
 
-            //创建ZK命名空间/当前部署应用APP命名空间/
+            //创建ZK命名空间/当前部署应用APP命名空间/,此处我们配置的APP_KEY是rpc
             String APP_KEY = serviceMetaData.get(0).getAppKey();
             String ZK_PATH = ROOT_PATH + "/" + APP_KEY;
             //不存在则创建服务提供者节点
@@ -109,10 +110,11 @@ public class RegisterCenter implements IRegisterCenter4Invoker, IRegisterCenter4
 
             for (Map.Entry<String, List<ProviderService>> entry : providerServiceMap.entrySet()) {
                 ProviderService providerService = entry.getValue().get(0);
-                //服务分组
+                //服务分组,groupName我们配置的是default
                 String groupName = providerService.getGroupName();
                 //创建服务提供者
                 String serviceNode = entry.getKey();
+                //servicePath形如/rpc_config_register/rpc/default/com.lwh.test.HelloService/provider
                 String servicePath = ZK_PATH + "/" + groupName + "/" + serviceNode + "/" + PROVIDER_TYPE;
                 exist = zkClient.exists(servicePath);
                 if (!exist) {
@@ -127,6 +129,7 @@ public class RegisterCenter implements IRegisterCenter4Invoker, IRegisterCenter4
                 //服务工作线程
                 int workerThreads = providerService.getWorkerThreads();
                 String localIp = IPHelper.localIp();
+                //servicepath后面的部分形如,[10.128.20.8|8081|2|100|default]
                 String currentServiceIpNode = servicePath + "/" + localIp + "|" + serverPort + "|" + weight
                         + "|" + workerThreads + "|" + groupName;
                 exist = zkClient.exists(currentServiceIpNode);
@@ -279,7 +282,7 @@ public class RegisterCenter implements IRegisterCenter4Invoker, IRegisterCenter4
             }
         }
 
-        //从ZK获取服务提供者列表
+        //从ZK获取服务提供者列表,providerPath形如/rpc_config_register/rpc/default/
         String providerPath = ROOT_PATH + "/" + remoteAppKey + "/" + groupName;
         List<String> providerServices = zkClient.getChildren(providerPath);
 
